@@ -1,0 +1,248 @@
+<div class="communications-container">
+  <!-- Header -->
+  <div class="header">
+    <h2>College Communications Center</h2>
+    <p>Stay updated with all college announcements, messages, and events</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="comms-nav">
+    <ul>
+      <li [class.active]="activeTab === 'announcements'" (click)="setActiveTab('announcements')">
+        Announcements
+      </li>
+      <li [class.active]="activeTab === 'messages'" (click)="setActiveTab('messages')">
+        Faculty Messages
+      </li>
+      <li [class.active]="activeTab === 'events'" (click)="setActiveTab('events')">
+        Events
+      </li>
+      <li [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')">
+        Notifications
+      </li>
+      <li [class.active]="activeTab === 'forums'" (click)="setActiveTab('forums')">
+        Discussion Forums
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Announcements Tab -->
+    <div *ngIf="activeTab === 'announcements'" class="announcements-tab">
+      <div class="controls">
+        <div class="filter">
+          <label for="announcementFilter">Filter by:</label>
+          <select id="announcementFilter" [(ngModel)]="announcementFilter">
+            <option value="all">All Categories</option>
+            <option value="general">General</option>
+            <option value="exam">Exam</option>
+            <option value="fee">Fee</option>
+            <option value="campus">Campus</option>
+          </select>
+        </div>
+        <div class="sort">
+          <label for="sortBy">Sort by:</label>
+          <select id="sortBy" [(ngModel)]="sortBy">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="announcement-list">
+        <div *ngFor="let announcement of filteredAnnouncements" class="announcement-card" 
+             [class.new]="announcement.isNew" [class.high-priority]="announcement.priority === 'high'"
+             (click)="markAsRead(announcement.id)">
+          <div class="announcement-header">
+            <h3>{{ announcement.title }}</h3>
+            <span class="category">{{ announcement.category | uppercase }}</span>
+            <span class="date">{{ announcement.date | date:'mediumDate' }}</span>
+            <span *ngIf="announcement.isNew" class="new-badge">NEW</span>
+          </div>
+          <div class="announcement-content">
+            <p>{{ announcement.content }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="archive-link">
+        <a href="#">View Announcement Archive →</a>
+      </div>
+    </div>
+
+    <!-- Messages Tab -->
+    <div *ngIf="activeTab === 'messages'" class="messages-tab">
+      <div class="controls">
+        <div class="filter">
+          <label for="messageFilter">Filter by subject:</label>
+          <select id="messageFilter" [(ngModel)]="messageFilter">
+            <option value="all">All Subjects</option>
+            <option value="CS401">Data Structures</option>
+            <option value="CS402">Algorithms</option>
+            <!-- Add more subjects -->
+          </select>
+        </div>
+      </div>
+
+      <div class="message-list">
+        <div *ngFor="let message of filteredMessages" class="message-card" 
+             [class.unread]="!message.isRead" (click)="markMessageAsRead(message.id)">
+          <div class="message-header">
+            <h3>{{ message.subject }}</h3>
+            <span class="from">From: {{ message.from }}</span>
+            <span class="date">{{ message.date | date:'mediumDate' }}</span>
+            <span *ngIf="!message.isRead" class="unread-badge">UNREAD</span>
+          </div>
+          <div class="message-content">
+            <p>{{ message.content }}</p>
+          </div>
+          <div *ngIf="message.attachments?.length" class="attachments">
+            <h4>Attachments:</h4>
+            <ul>
+              <li *ngFor="let file of message.attachments">
+                <span>{{ file }}</span>
+                <button (click)="downloadAttachment(file)">Download</button>
+              </li>
+            </ul>
+          </div>
+          <div class="message-actions">
+            <button (click)="replyToMessage(message)">Reply</button>
+            <button>Acknowledge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Tab -->
+    <div *ngIf="activeTab === 'events'" class="events-tab">
+      <div class="controls">
+        <div class="filter">
+          <label for="eventFilter">Filter by type:</label>
+          <select id="eventFilter" [(ngModel)]="eventFilter">
+            <option value="all">All Events</option>
+            <option value="cultural">Cultural</option>
+            <option value="academic">Academic</option>
+            <option value="sports">Sports</option>
+            <option value="workshop">Workshops/Seminars</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="event-list">
+        <div *ngFor="let event of filteredEvents" class="event-card">
+          <div class="event-header">
+            <h3>{{ event.title }}</h3>
+            <span class="type">{{ event.type | uppercase }}</span>
+          </div>
+          <div class="event-details">
+            <p><strong>Date:</strong> {{ event.date | date:'fullDate' }} 
+              <span *ngIf="event.endDate">to {{ event.endDate | date:'fullDate' }}</span>
+            </p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p>{{ event.description }}</p>
+          </div>
+          <div class="event-actions">
+            <a *ngIf="event.registrationLink" [href]="event.registrationLink" target="_blank" class="register-btn">
+              Register Now
+            </a>
+            <button (click)="addToCalendar(event)">Add to Calendar</button>
+            <p *ngIf="event.contact"><strong>Contact:</strong> {{ event.contact }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div *ngIf="activeTab === 'notifications'" class="notifications-tab">
+      <div class="notification-list">
+        <div *ngFor="let notification of notifications" class="notification-card" 
+             [class.unread]="!notification.isRead" (click)="markNotificationAsRead(notification.id)">
+          <div class="notification-header">
+            <h3>{{ notification.title }}</h3>
+            <span class="type">{{ notification.type | uppercase }}</span>
+            <span class="date">{{ notification.date | date:'short' }}</span>
+            <span *ngIf="!notification.isRead" class="unread-badge">NEW</span>
+          </div>
+          <div class="notification-content">
+            <p>{{ notification.content }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notification-settings">
+        <h3>Notification Preferences</h3>
+        <form (submit)="saveNotificationPrefs()">
+          <div class="preference-item">
+            <input type="checkbox" id="assignments" [(ngModel)]="notificationPrefs.assignments" name="assignments">
+            <label for="assignments">Assignment Deadlines</label>
+          </div>
+          <div class="preference-item">
+            <input type="checkbox" id="exams" [(ngModel)]="notificationPrefs.exams" name="exams">
+            <label for="exams">Exam Reminders</label>
+          </div>
+          <div class="preference-item">
+            <input type="checkbox" id="fees" [(ngModel)]="notificationPrefs.fees" name="fees">
+            <label for="fees">Fee Due Notices</label>
+          </div>
+          <div class="preference-item">
+            <input type="checkbox" id="events" [(ngModel)]="notificationPrefs.events" name="events">
+            <label for="events">Event Updates</label>
+          </div>
+          <div class="preference-item">
+            <input type="checkbox" id="messages" [(ngModel)]="notificationPrefs.messages" name="messages">
+            <label for="messages">Faculty Messages</label>
+          </div>
+          <button type="submit">Save Preferences</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Forums Tab -->
+    <div *ngIf="activeTab === 'forums'" class="forums-tab">
+      <div class="forum-header">
+        <h3>Discussion Forums</h3>
+        <button>New Post</button>
+      </div>
+
+      <div class="forum-list">
+        <div *ngFor="let post of forumPosts" class="forum-post">
+          <div class="post-header">
+            <h4>{{ post.title }}</h4>
+            <span class="course">{{ post.course }}</span>
+            <span *ngIf="post.isSticky" class="sticky">PINNED</span>
+          </div>
+          <div class="post-details">
+            <span class="author">By {{ post.author }}</span>
+            <span class="date">{{ post.date | date:'mediumDate' }}</span>
+            <span class="replies">{{ post.replies }} replies</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="forum-categories">
+        <h4>Forum Categories</h4>
+        <ul>
+          <li>
+            <h5>Academic Discussions</h5>
+            <ul>
+              <li>Data Structures</li>
+              <li>Algorithms</li>
+              <li>Database Systems</li>
+              <!-- Add more subjects -->
+            </ul>
+          </li>
+          <li>
+            <h5>Clubs & Societies</h5>
+            <ul>
+              <li>Coding Club</li>
+              <li>Drama Society</li>
+              <li>Sports Club</li>
+              <!-- Add more clubs -->
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

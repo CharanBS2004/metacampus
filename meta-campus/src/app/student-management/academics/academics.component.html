@@ -1,0 +1,283 @@
+<div class="academics-container">
+  <!-- Student Information Header -->
+  <div class="student-header">
+    <h2>Academic Dashboard</h2>
+    <div class="student-info">
+      <div class="info-item">
+        <span class="label">Student ID:</span>
+        <span class="value">{{ student.id }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Name:</span>
+        <span class="value">{{ student.name }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Program:</span>
+        <span class="value">{{ student.program }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Semester:</span>
+        <span class="value">{{ student.currentSemester }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="academics-nav">
+    <ul>
+      <li [class.active]="activeTab === 'schedule'" (click)="setActiveTab('schedule')">
+        Class Schedule
+      </li>
+      <li [class.active]="activeTab === 'subjects'" (click)="setActiveTab('subjects')">
+        Subjects
+      </li>
+      <li [class.active]="activeTab === 'syllabus'" (click)="setActiveTab('syllabus')">
+        Syllabus
+      </li>
+      <li [class.active]="activeTab === 'assignments'" (click)="setActiveTab('assignments')">
+        Assignments
+      </li>
+      <li [class.active]="activeTab === 'exams'" (click)="setActiveTab('exams')">
+        Exams
+      </li>
+      <li [class.active]="activeTab === 'results'" (click)="setActiveTab('results')">
+        Results
+      </li>
+      <li [class.active]="activeTab === 'attendance'" (click)="setActiveTab('attendance')">
+        Attendance
+      </li>
+      <li [class.active]="activeTab === 'calendar'" (click)="setActiveTab('calendar')">
+        Academic Calendar
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Class Schedule Tab -->
+    <div *ngIf="activeTab === 'schedule'" class="schedule-tab">
+      <h3>Weekly Class Schedule</h3>
+      <div class="actions">
+        <button (click)="downloadTimetable()">Download Timetable</button>
+        <button (click)="printTimetable()">Print Timetable</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>Faculty</th>
+            <th>Room</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let class of classSchedule">
+            <td>{{ class.day }}</td>
+            <td>{{ class.time }}</td>
+            <td>{{ class.subject }}</td>
+            <td>{{ class.faculty }}</td>
+            <td>{{ class.room }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Subjects Tab -->
+    <div *ngIf="activeTab === 'subjects'" class="subjects-tab">
+      <h3>Current Semester Subjects</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Subject Name</th>
+            <th>Faculty</th>
+            <th>Credits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let subject of subjects">
+            <td>{{ subject.code }}</td>
+            <td>{{ subject.name }}</td>
+            <td>{{ subject.faculty }}</td>
+            <td>{{ subject.credits }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Syllabus Tab -->
+    <div *ngIf="activeTab === 'syllabus'" class="syllabus-tab">
+      <h3>Subject-wise Syllabus and Materials</h3>
+      <div *ngFor="let subjectSyllabus of syllabus" class="syllabus-item">
+        <h4>{{ subjectSyllabus.subject }}</h4>
+        <div class="syllabus-doc">
+          <a [href]="subjectSyllabus.syllabusDoc" target="_blank">Download Syllabus (PDF)</a>
+        </div>
+        
+        <div class="materials-section">
+          <h5>Lecture Notes</h5>
+          <ul>
+            <li *ngFor="let note of subjectSyllabus.notes">{{ note }}</li>
+          </ul>
+        </div>
+        
+        <div class="materials-section">
+          <h5>Lecture Slides</h5>
+          <ul>
+            <li *ngFor="let slide of subjectSyllabus.slides">{{ slide }}</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="subjectSyllabus.videos?.length" class="materials-section">
+          <h5>Video Lectures</h5>
+          <ul>
+            <li *ngFor="let video of subjectSyllabus.videos">
+              <a [href]="video" target="_blank">Watch Video</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignments Tab -->
+    <div *ngIf="activeTab === 'assignments'" class="assignments-tab">
+      <h3>Assignments</h3>
+      <div class="assignment-list">
+        <div *ngFor="let assignment of assignments" class="assignment-item">
+          <div class="assignment-header">
+            <h4>{{ assignment.title }}</h4>
+            <span class="status" [class.pending]="assignment.status === 'Pending'"
+                                 [class.submitted]="assignment.status === 'Submitted'"
+                                 [class.late]="assignment.status === 'Late'"
+                                 [class.graded]="assignment.status === 'Graded'">
+              {{ assignment.status }}
+            </span>
+          </div>
+          <div class="assignment-details">
+            <p><strong>Subject:</strong> {{ assignment.subject }}</p>
+            <p><strong>Deadline:</strong> {{ assignment.deadline | date:'mediumDate' }}</p>
+            <p><strong>Instructions:</strong> {{ assignment.instructions }}</p>
+            <div *ngIf="assignment.feedback" class="feedback">
+              <p><strong>Feedback:</strong> {{ assignment.feedback }}</p>
+              <p *ngIf="assignment.grade"><strong>Grade:</strong> {{ assignment.grade }}/100</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="upload-section">
+        <h4>Upload New Assignment</h4>
+        <input type="file" (change)="onFileSelected($event)">
+        <button *ngIf="newAssignmentUpload" (click)="uploadAssignment()">Upload</button>
+      </div>
+    </div>
+
+    <!-- Exams Tab -->
+    <div *ngIf="activeTab === 'exams'" class="exams-tab">
+      <h3>Exam Schedule</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Room</th>
+            <th>Hall Ticket</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let exam of exams">
+            <td>{{ exam.subject }}</td>
+            <td>{{ exam.date | date:'mediumDate' }}</td>
+            <td>{{ exam.time }}</td>
+            <td>{{ exam.room }}</td>
+            <td>
+              <button *ngIf="exam.hallTicketUrl" (click)="downloadHallTicket(exam.hallTicketUrl)">
+                Download
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Results Tab -->
+    <div *ngIf="activeTab === 'results'" class="results-tab">
+      <h3>Academic Results</h3>
+      <div class="cgpa-display">
+        <h4>CGPA: {{ calculateCGPA() | number:'1.2-2' }}</h4>
+      </div>
+      
+      <div *ngFor="let result of results" class="semester-result">
+        <h4>{{ result.semester }}</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Grade</th>
+              <th>Credits</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let subject of result.subjects">
+              <td>{{ subject.name }}</td>
+              <td>{{ subject.grade }}</td>
+              <td>{{ subject.credits }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="gpa">
+          <strong>Semester GPA:</strong> {{ result.gpa | number:'1.2-2' }}
+        </div>
+      </div>
+      
+      <div class="download-section">
+        <button>Download Marksheet</button>
+      </div>
+    </div>
+
+    <!-- Attendance Tab -->
+    <div *ngIf="activeTab === 'attendance'" class="attendance-tab">
+      <h3>Attendance Records</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Classes Attended</th>
+            <th>Total Classes</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of attendance" [class.low-attendance]="record.percentage < 75">
+            <td>{{ record.subject }}</td>
+            <td>{{ record.attended }}</td>
+            <td>{{ record.totalClasses }}</td>
+            <td>{{ record.percentage }}%</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="hasLowAttendance()" class="warning">
+        <p>⚠️ Warning: Low attendance in some subjects (below 75%)</p>
+      </div>
+    </div>
+
+    <!-- Academic Calendar Tab -->
+    <div *ngIf="activeTab === 'calendar'" class="calendar-tab">
+      <h3>Academic Calendar</h3>
+      <div class="calendar-events">
+        <div *ngFor="let event of academicCalendar" class="calendar-event">
+          <div class="event-date">
+            {{ event.date | date:'mediumDate' }}
+          </div>
+          <div class="event-details">
+            <h4>{{ event.title }}</h4>
+            <p>{{ event.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
