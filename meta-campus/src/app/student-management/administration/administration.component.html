@@ -1,1 +1,354 @@
-<p>administration works!</p>
+<div class="profile-container">
+  <!-- Student Header -->
+  <div class="student-header">
+    <h2>Student Profile</h2>
+    <div class="student-basic-info">
+      <div class="avatar">
+        <img src="assets/default-avatar.jpg" alt="Student Avatar">
+      </div>
+      <div class="info">
+        <h3>{{ student.name }}</h3>
+        <p>{{ student.academicInfo.program }}</p>
+        <p>{{ student.academicInfo.currentYear }} ({{ student.academicInfo.currentSemester }})</p>
+      </div>
+      <div class="id-card" *ngIf="student.idCardUrl">
+        <button (click)="downloadIdCard()">Download ID Card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="profile-nav">
+    <ul>
+      <li [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')">
+        Profile Details
+      </li>
+      <li [class.active]="activeTab === 'fees'" (click)="setActiveTab('fees')">
+        Fee Status
+      </li>
+      <li [class.active]="activeTab === 'scholarships'" (click)="setActiveTab('scholarships')">
+        Scholarships
+      </li>
+      <li [class.active]="activeTab === 'leave'" (click)="setActiveTab('leave')">
+        Leave Applications
+      </li>
+      <li [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">
+        Document Requests
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Profile Details Tab -->
+    <div *ngIf="activeTab === 'profile'" class="profile-tab">
+      <div class="profile-section">
+        <h3>Personal Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Name:</span>
+            <span class="value">{{ student.name }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Date of Birth:</span>
+            <span class="value">{{ student.dob | date:'mediumDate' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ student.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Phone:</span>
+            <span class="value">{{ student.phone }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Address:</span>
+            <span class="value">{{ student.address }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Emergency Contact:</span>
+            <span class="value">{{ student.emergencyContact.name }} ({{ student.emergencyContact.relation }}) - {{ student.emergencyContact.phone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Academic Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Roll Number:</span>
+            <span class="value">{{ student.academicInfo.rollNo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Program:</span>
+            <span class="value">{{ student.academicInfo.program }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Department:</span>
+            <span class="value">{{ student.academicInfo.department }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Current Year/Semester:</span>
+            <span class="value">{{ student.academicInfo.currentYear }} ({{ student.academicInfo.currentSemester }})</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Admission Year:</span>
+            <span class="value">{{ student.academicInfo.admissionYear }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Expected Graduation:</span>
+            <span class="value">{{ student.academicInfo.expectedGraduation }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-profile-section">
+        <h3>Update Profile</h3>
+        <form (submit)="submitProfileEdit()">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" [(ngModel)]="editProfileForm.phone" name="phone" required>
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" [(ngModel)]="editProfileForm.address" name="address" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Emergency Contact</label>
+            <div class="sub-form">
+              <input type="text" placeholder="Name" [(ngModel)]="editProfileForm.emergencyContact.name" name="ecName" required>
+              <input type="text" placeholder="Relation" [(ngModel)]="editProfileForm.emergencyContact.relation" name="ecRelation" required>
+              <input type="tel" placeholder="Phone" [(ngModel)]="editProfileForm.emergencyContact.phone" name="ecPhone" required>
+            </div>
+          </div>
+          <button type="submit">Submit Update Request</button>
+          <p class="note">Note: Changes will require admin approval</p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Fee Status Tab -->
+    <div *ngIf="activeTab === 'fees'" class="fees-tab">
+      <div class="fee-summary">
+        <h3>Current Semester Fee Status: 
+          <span [class.paid]="feeDetails.currentStatus === 'Paid'" 
+                [class.due]="feeDetails.currentStatus === 'Due'">
+            {{ feeDetails.currentStatus }}
+          </span>
+        </h3>
+        <div class="balance-box">
+          <div class="amount">
+            <span class="label">Total Amount:</span>
+            <span class="value">₹{{ feeDetails.totalAmount | number }}</span>
+          </div>
+          <div class="amount">
+            <span class="label">Total Paid:</span>
+            <span class="value">₹{{ feeDetails.totalPaid | number }}</span>
+          </div>
+          <div class="amount">
+            <span class="label">Balance:</span>
+            <span class="value">₹{{ feeDetails.balance | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fee-breakdown">
+        <h4>Fee Breakdown</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Fee Type</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fee of feeDetails.breakdown">
+              <td>{{ fee.name }}</td>
+              <td>₹{{ fee.amount | number }}</td>
+              <td>₹{{ fee.paid | number }}</td>
+              <td>₹{{ fee.amount - fee.paid | number }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="payment-history">
+        <h4>Payment History</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Semester</th>
+              <th>Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of feeDetails.paymentHistory">
+              <td>{{ payment.date | date:'mediumDate' }}</td>
+              <td>₹{{ payment.amount | number }}</td>
+              <td>{{ payment.semester }}</td>
+              <td>
+                <button (click)="downloadReceipt(payment.downloadUrl)">Download</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="make-payment" *ngIf="feeDetails.currentStatus === 'Due'">
+        <button (click)="makePayment()">Make Payment</button>
+      </div>
+    </div>
+
+    <!-- Scholarships Tab -->
+    <div *ngIf="activeTab === 'scholarships'" class="scholarships-tab">
+      <div class="scholarship-list">
+        <h3>Your Scholarships</h3>
+        <div *ngFor="let scholarship of scholarships" class="scholarship-card">
+          <div class="scholarship-header">
+            <h4>{{ scholarship.name }}</h4>
+            <span class="status" [class.active]="scholarship.status === 'Active'"
+                                 [class.pending]="scholarship.status === 'Pending'"
+                                 [class.ended]="scholarship.status === 'Ended'">
+              {{ scholarship.status }}
+            </span>
+          </div>
+          <div class="scholarship-details">
+            <p><strong>Amount:</strong> ₹{{ scholarship.amount | number }} per {{ scholarship.duration }}</p>
+            <p><strong>Eligibility Criteria:</strong> {{ scholarship.criteria }}</p>
+            <p><strong>Application Date:</strong> {{ scholarship.applicationDate | date:'mediumDate' }}</p>
+            <p *ngIf="scholarship.renewalDate"><strong>Renewal Date:</strong> {{ scholarship.renewalDate | date:'mediumDate' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="apply-scholarship">
+        <h3>Apply for Scholarships</h3>
+        <p>Available scholarships will be listed here during application periods.</p>
+        <button>View Available Scholarships</button>
+      </div>
+    </div>
+
+    <!-- Leave Applications Tab -->
+    <div *ngIf="activeTab === 'leave'" class="leave-tab">
+      <div class="apply-leave">
+        <h3>Apply for Leave</h3>
+        <form (submit)="applyForLeave()">
+          <div class="form-group">
+            <label for="leaveType">Leave Type</label>
+            <select id="leaveType" [(ngModel)]="newLeaveApplication.type" name="leaveType" required>
+              <option value="Academic">Academic</option>
+              <option value="Medical">Medical</option>
+              <option value="Personal">Personal</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="startDate">Start Date</label>
+              <input type="date" id="startDate" [(ngModel)]="newLeaveApplication.startDate" name="startDate" required>
+            </div>
+            <div class="form-group">
+              <label for="endDate">End Date</label>
+              <input type="date" id="endDate" [(ngModel)]="newLeaveApplication.endDate" name="endDate" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="leaveReason">Reason</label>
+            <textarea id="leaveReason" [(ngModel)]="newLeaveApplication.reason" name="leaveReason" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="leaveDocuments">Supporting Documents</label>
+            <input type="file" id="leaveDocuments" (change)="onLeaveDocumentSelected($event)" multiple>
+            <div class="document-preview" *ngIf="newLeaveApplication.documents.length > 0">
+              <p>Attached Documents:</p>
+              <ul>
+                <li *ngFor="let doc of newLeaveApplication.documents">{{ doc.name }}</li>
+              </ul>
+            </div>
+          </div>
+          <button type="submit">Submit Application</button>
+        </form>
+      </div>
+
+      <div class="leave-history">
+        <h3>Leave History</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Leave ID</th>
+              <th>Type</th>
+              <th>Dates</th>
+              <th>Reason</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let leave of leaveApplications" [class.approved]="leave.status === 'Approved'"
+                                                   [class.pending]="leave.status === 'Submitted'"
+                                                   [class.rejected]="leave.status === 'Rejected'">
+              <td>{{ leave.id }}</td>
+              <td>{{ leave.type }}</td>
+              <td>{{ leave.startDate | date:'shortDate' }} to {{ leave.endDate | date:'shortDate' }}</td>
+              <td>{{ leave.reason }}</td>
+              <td>{{ leave.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Document Requests Tab -->
+    <div *ngIf="activeTab === 'documents'" class="documents-tab">
+      <div class="request-document">
+        <h3>Request Document</h3>
+        <form (submit)="requestDocument()">
+          <div class="form-group">
+            <label for="docType">Document Type</label>
+            <select id="docType" [(ngModel)]="newDocumentRequest.type" name="docType" required>
+              <option value="Bonafide Certificate">Bonafide Certificate</option>
+              <option value="Transcript">Transcript</option>
+              <option value="ID Card Reissue">ID Card Reissue</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="docPurpose">Purpose</label>
+            <textarea id="docPurpose" [(ngModel)]="newDocumentRequest.purpose" name="docPurpose" required></textarea>
+          </div>
+          <button type="submit">Submit Request</button>
+        </form>
+      </div>
+
+      <div class="document-requests">
+        <h3>Your Document Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Document Type</th>
+              <th>Request Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of documentRequests" [class.processed]="request.status === 'Processed'"
+                                                     [class.pending]="request.status === 'Pending'"
+                                                     [class.rejected]="request.status === 'Rejected'">
+              <td>{{ request.id }}</td>
+              <td>{{ request.type }}</td>
+              <td>{{ request.requestDate | date:'mediumDate' }}</td>
+              <td>{{ request.status }}</td>
+              <td>
+                <button *ngIf="request.downloadUrl" (click)="downloadDocument(request.downloadUrl)">Download</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,183 @@
-<p>library works!</p>
+<div class="library-container">
+  <header class="library-header">
+    <h1>Library Portal</h1>
+    <div class="student-info">
+      <p><strong>Student:</strong> {{studentName}} ({{studentId}})</p>
+      <p><strong>Department:</strong> {{department}}</p>
+    </div>
+  </header>
+  
+  <nav class="library-nav">
+    <button [class.active]="activeTab === 'issuedBooks'" (click)="switchTab('issuedBooks')">
+      Books Issued
+    </button>
+    <button [class.active]="activeTab === 'dueDates'" (click)="switchTab('dueDates')">
+      Due Dates & Fines
+    </button>
+    <button [class.active]="activeTab === 'catalog'" (click)="switchTab('catalog')">
+      Book Catalog
+    </button>
+    <button [class.active]="activeTab === 'digital'" (click)="switchTab('digital')">
+      Digital Resources
+    </button>
+    <button [class.active]="activeTab === 'notices'" (click)="switchTab('notices')">
+      Library Notices
+    </button>
+    <button [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+      Borrowing History
+    </button>
+  </nav>
+  
+  <main class="library-content">
+    <!-- Books Issued Section -->
+    <section *ngIf="activeTab === 'issuedBooks'" class="tab-content">
+      <h2>Currently Issued Books</h2>
+      <div *ngIf="issuedBooks.length === 0" class="no-books">
+        <p>You don't have any books issued currently.</p>
+      </div>
+      <div *ngFor="let book of issuedBooks" class="book-card">
+        <h3>{{book.title}}</h3>
+        <p><strong>Author:</strong> {{book.author}}</p>
+        <p><strong>Issued on:</strong> {{book.issueDate | date:'mediumDate'}}</p>
+        <p><strong>Due date:</strong> {{book.dueDate | date:'mediumDate'}}</p>
+        <div class="book-actions">
+          <button *ngIf="book.isRenewable" (click)="renewBook(book.id)" class="renew-btn">
+            Renew
+          </button>
+          <span *ngIf="book.isOverdue" class="overdue-label">OVERDUE</span>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Due Dates & Fines Section -->
+    <section *ngIf="activeTab === 'dueDates'" class="tab-content">
+      <h2>Due Dates & Fines</h2>
+      <div *ngFor="let book of issuedBooks" class="due-item" [class.overdue]="book.isOverdue">
+        <h3>{{book.title}}</h3>
+        <p><strong>Due Date:</strong> {{book.dueDate | date:'mediumDate'}}</p>
+        <p *ngIf="book.isOverdue">
+          <strong>Days Overdue:</strong> {{getDaysOverdue(book.dueDate)}}
+        </p>
+        <p *ngIf="book.fine"><strong>Fine:</strong> ₹{{book.fine}}</p>
+      </div>
+      <div class="total-fines" *ngIf="calculateTotalFines() > 0">
+        <h3>Total Outstanding Fines: ₹{{calculateTotalFines()}}</h3>
+        <button class="pay-btn">Pay Online</button>
+      </div>
+    </section>
+    
+    <!-- Book Catalog Section -->
+    <section *ngIf="activeTab === 'catalog'" class="tab-content">
+      <h2>Book Catalog</h2>
+      <div class="search-box">
+        <select [(ngModel)]="searchCategory">
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+          <option value="subject">Subject</option>
+          <option value="isbn">ISBN</option>
+        </select>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search...">
+        <button (click)="searchCatalog()">Search</button>
+      </div>
+      <table class="catalog-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of catalog">
+            <td>{{book.title}}</td>
+            <td>{{book.author}}</td>
+            <td>{{book.subject}}</td>
+            <td [class.available]="book.status === 'Available'"
+                [class.issued]="book.status === 'Issued'"
+                [class.reserved]="book.status === 'Reserved'">
+              {{book.status}}
+            </td>
+            <td>{{book.location}}</td>
+            <td>
+              <button *ngIf="book.status !== 'Available'" 
+                      (click)="reserveBook(book.id)" 
+                      class="reserve-btn">
+                Reserve
+              </button>
+              <span *ngIf="book.status === 'Available'">Available for issue</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    
+    <!-- Digital Resources Section -->
+    <section *ngIf="activeTab === 'digital'" class="tab-content">
+      <h2>Digital Library Resources</h2>
+      <div class="resources-grid">
+        <div *ngFor="let resource of digitalResources" class="resource-card">
+          <h3>{{resource.title}}</h3>
+          <p><strong>Type:</strong> {{resource.type}}</p>
+          <p *ngIf="resource.provider"><strong>Provider:</strong> {{resource.provider}}</p>
+          <a [href]="resource.link" target="_blank" class="access-link">Access Resource</a>
+        </div>
+      </div>
+      <div class="external-links">
+        <h3>External Academic Resources</h3>
+        <ul>
+          <li><a href="https://www.jstor.org" target="_blank">JSTOR</a></li>
+          <li><a href="https://link.springer.com" target="_blank">SpringerLink</a></li>
+          <li><a href="https://nptel.ac.in" target="_blank">NPTEL</a></li>
+        </ul>
+      </div>
+    </section>
+    
+    <!-- Library Notices Section -->
+    <section *ngIf="activeTab === 'notices'" class="tab-content">
+      <h2>Library Notices</h2>
+      <div *ngFor="let notice of notices" class="notice-card" [class.important]="notice.isImportant">
+        <h3>{{notice.title}}</h3>
+        <p class="notice-date">{{notice.date | date:'mediumDate'}}</p>
+        <p>{{notice.content}}</p>
+      </div>
+    </section>
+    
+    <!-- Borrowing History Section -->
+    <section *ngIf="activeTab === 'history'" class="tab-content">
+      <h2>Your Borrowing History</h2>
+      <div *ngIf="borrowingHistory.length === 0" class="no-history">
+        <p>No borrowing history found.</p>
+      </div>
+      <table class="history-table" *ngIf="borrowingHistory.length > 0">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Issued Date</th>
+            <th>Returned Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of borrowingHistory">
+            <td>{{book.title}}</td>
+            <td>{{book.author}}</td>
+            <td>{{book.issueDate | date:'mediumDate'}}</td>
+            <td>{{book.dueDate | date:'mediumDate'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  
+  <footer class="library-footer">
+    <div class="feedback-section">
+      <h3>Feedback & Suggestions</h3>
+      <p>Have suggestions for new books or improvements? Let us know!</p>
+      <button class="feedback-btn">Submit Feedback</button>
+    </div>
+    <p class="copyright">© 2023 College Library System</p>
+  </footer>
+</div>

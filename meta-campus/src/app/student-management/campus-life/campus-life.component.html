@@ -1,1 +1,250 @@
-<p>campus-life works!</p>
+<div class="campus-life-container">
+  <header class="campus-header">
+    <h1>Campus Life Portal</h1>
+    <div class="student-info">
+      <p><strong>Student:</strong> {{studentName}} ({{studentId}})</p>
+      <p><strong>Department:</strong> {{department}}, Year {{currentYear}}</p>
+    </div>
+  </header>
+
+  <nav class="campus-nav">
+    <button [class.active]="activeTab === 'hostel'" (click)="switchTab('hostel')">
+      Hostel Details
+    </button>
+    <button [class.active]="activeTab === 'transport'" (click)="switchTab('transport')">
+      Transport
+    </button>
+    <button [class.active]="activeTab === 'clubs'" (click)="switchTab('clubs')">
+      Clubs & Activities
+    </button>
+    <button [class.active]="activeTab === 'placements'" (click)="switchTab('placements')">
+      Placements
+    </button>
+    <button [class.active]="activeTab === 'events'" (click)="switchTab('events')">
+      Events Calendar
+    </button>
+  </nav>
+
+  <main class="campus-content">
+    <!-- Hostel Details Section -->
+    <section *ngIf="activeTab === 'hostel'" class="tab-content">
+      <h2>Hostel Details</h2>
+      
+      <div class="hostel-info">
+        <div class="hostel-card">
+          <h3>{{hostelDetails.name}}</h3>
+          <p><strong>Room Number:</strong> {{hostelDetails.roomNumber}}</p>
+          <p><strong>Allotted on:</strong> {{hostelDetails.allotmentDate | date:'mediumDate'}}</p>
+          <p><strong>Warden:</strong> {{hostelDetails.wardenName}} ({{hostelDetails.wardenContact}})</p>
+        </div>
+
+        <div class="rules-section">
+          <h3>Hostel Rules</h3>
+          <ul>
+            <li *ngFor="let rule of hostelDetails.rules">{{rule}}</li>
+          </ul>
+          <p><strong>Timings:</strong> In by {{hostelDetails.timings.inTime}}, Out after {{hostelDetails.timings.outTime}}</p>
+        </div>
+
+        <div *ngIf="hostelDetails.messMenu" class="mess-section">
+          <h3>Mess Menu</h3>
+          <ul>
+            <li *ngFor="let item of hostelDetails.messMenu">{{item}}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="forms-section">
+        <div class="leave-form">
+          <h3>Leave Request</h3>
+          <form (submit)="submitLeaveRequest()">
+            <div class="form-group">
+              <label>From Date:</label>
+              <input type="date" [(ngModel)]="leaveRequest.fromDate" name="fromDate" required>
+            </div>
+            <div class="form-group">
+              <label>To Date:</label>
+              <input type="date" [(ngModel)]="leaveRequest.toDate" name="toDate" required>
+            </div>
+            <div class="form-group">
+              <label>Reason:</label>
+              <textarea [(ngModel)]="leaveRequest.reason" name="reason" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Emergency Contact:</label>
+              <input type="text" [(ngModel)]="leaveRequest.emergencyContact" name="emergencyContact" required>
+            </div>
+            <button type="submit">Submit Request</button>
+          </form>
+        </div>
+
+        <div class="complaint-form">
+          <h3>Complaint/Maintenance Request</h3>
+          <form (submit)="submitComplaint()">
+            <div class="form-group">
+              <label>Category:</label>
+              <select [(ngModel)]="complaint.category" name="category" required>
+                <option value="">Select category</option>
+                <option value="electrical">Electrical</option>
+                <option value="plumbing">Plumbing</option>
+                <option value="cleaning">Cleaning</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea [(ngModel)]="complaint.description" name="description" required></textarea>
+            </div>
+            <button type="submit">Submit Complaint</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transport Section -->
+    <section *ngIf="activeTab === 'transport'" class="tab-content">
+      <h2>Transport Details</h2>
+      
+      <div *ngFor="let route of transportDetails" class="route-card">
+        <h3>{{route.routeName}}</h3>
+        
+        <div class="route-details">
+          <div>
+            <h4>Morning Schedule</h4>
+            <ul>
+              <li *ngFor="let time of route.schedule.morning">{{time}}</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4>Evening Schedule</h4>
+            <ul>
+              <li *ngFor="let time of route.schedule.evening">{{time}}</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="pickup-points">
+          <h4>Pickup Points</h4>
+          <ul>
+            <li *ngFor="let point of route.pickupPoints">{{point}}</li>
+          </ul>
+        </div>
+        
+        <div class="coordinator-info">
+          <p><strong>Transport Coordinator:</strong> {{route.coordinator.name}}</p>
+          <p><strong>Contact:</strong> {{route.coordinator.contact}} | {{route.coordinator.email}}</p>
+          <p><strong>Pass Status:</strong> <span [class.active-pass]="route.passStatus === 'Active'">{{route.passStatus}}</span></p>
+        </div>
+      </div>
+      
+      <div class="transport-notice">
+        <p>For real-time bus tracking, download the College Transport App from your app store.</p>
+      </div>
+    </section>
+
+    <!-- Clubs & Activities Section -->
+    <section *ngIf="activeTab === 'clubs'" class="tab-content">
+      <h2>Clubs & Activities</h2>
+      
+      <div *ngFor="let club of clubs" class="club-card">
+        <div class="club-header">
+          <h3>{{club.name}}</h3>
+          <span *ngIf="club.isMember" class="member-badge">Member</span>
+        </div>
+        
+        <p class="club-description">{{club.description}}</p>
+        
+        <div class="club-contacts">
+          <p><strong>Faculty Advisor:</strong> {{club.facultyAdvisor}}</p>
+          <p><strong>Student Coordinator:</strong> {{club.coordinator}}</p>
+        </div>
+        
+        <div class="club-events" *ngIf="club.upcomingEvents.length > 0">
+          <h4>Upcoming Events</h4>
+          <div *ngFor="let event of club.upcomingEvents" class="event-item">
+            <p><strong>{{event.title}}</strong> - {{event.date | date:'mediumDate'}}</p>
+            <p>{{event.description}}</p>
+          </div>
+        </div>
+        
+        <button *ngIf="!club.isMember" (click)="joinClub(club.id)" class="join-btn">
+          Join Club
+        </button>
+      </div>
+    </section>
+
+    <!-- Placements Section -->
+    <section *ngIf="activeTab === 'placements'" class="tab-content">
+      <h2>Placement Updates</h2>
+      
+      <div class="placement-drives">
+        <div *ngFor="let drive of placementDrives" class="drive-card">
+          <div class="drive-header">
+            <h3>{{drive.company}}</h3>
+            <span [class.upcoming]="drive.status === 'Upcoming'"
+                  [class.ongoing]="drive.status === 'Ongoing'"
+                  [class.completed]="drive.status === 'Completed'">
+              {{drive.status}}
+            </span>
+          </div>
+          
+          <p><strong>Date:</strong> {{drive.date | date:'mediumDate'}}</p>
+          <p><strong>Eligibility:</strong> {{drive.eligibility}}</p>
+          
+          <button (click)="applyForPlacement(drive.id)" class="apply-btn">
+            Apply Now
+          </button>
+        </div>
+      </div>
+      
+      <div class="placement-contacts">
+        <h3>Placement Cell Contacts</h3>
+        <p><strong>Placement Officer:</strong> Dr. M. Kapoor</p>
+        <p><strong>Email:</strong> placement#&64college.edu</p>
+        <p><strong>Phone:</strong> 9876543210</p>
+        <p><strong>Office:</strong> Admin Block, Room 205</p>
+      </div>
+    </section>
+
+    <!-- Events Calendar Section -->
+    <section *ngIf="activeTab === 'events'" class="tab-content">
+      <h2>College Events Calendar</h2>
+      
+      <div class="events-grid">
+        <div *ngFor="let event of calendarEvents" class="event-card" [class.cultural]="event.type === 'cultural'"
+             [class.sports]="event.type === 'sports'" [class.academic]="event.type === 'academic'"
+             [class.social]="event.type === 'social'">
+          <div class="event-date">
+            {{event.date | date:'d'}}
+            <span>{{event.date | date:'MMM'}}</span>
+          </div>
+          
+          <div class="event-details">
+            <h3>{{event.title}}</h3>
+            <p class="event-type">{{event.type | uppercase}}</p>
+            <p>{{event.description}}</p>
+            
+            <button *ngIf="event.registrationLink" (click)="registerForEvent(event.id)" class="register-btn">
+              Register
+            </button>
+            <span *ngIf="!event.registrationLink" class="no-link">Registration details coming soon</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="campus-footer">
+    <div class="quick-links">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#">Campus Map</a></li>
+        <li><a href="#">Student Achievements</a></li>
+        <li><a href="#">Counseling Services</a></li>
+        <li><a href="#">Emergency Contacts</a></li>
+      </ul>
+    </div>
+    <p class="copyright">© 2023 College Campus Life | Student Support: support#&64college.edu</p>
+  </footer>
+</div>
