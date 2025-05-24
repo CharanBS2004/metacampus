@@ -14,7 +14,7 @@ describe('LibraryComponent', () => {
     .compileComponents();
 
     fixture = TestBed.createComponent(LibraryComponent);
-========
+
 import { HostelComponent } from './hostel.component';
 
 describe('HostelComponent', () => {
