@@ -1,0 +1,251 @@
+<div class="support-container">
+  <!-- Header -->
+  <div class="header">
+    <h2>Support Center</h2>
+    <p>Get help, submit feedback, or find answers to common questions</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="support-nav">
+    <ul>
+      <li [class.active]="activeTab === 'feedback'" (click)="setActiveTab('feedback')">
+        Feedback System
+      </li>
+      <li [class.active]="activeTab === 'helpdesk'" (click)="setActiveTab('helpdesk')">
+        Help Desk
+      </li>
+      <li [class.active]="activeTab === 'faq'" (click)="setActiveTab('faq')">
+        FAQs
+      </li>
+      <li [class.active]="activeTab === 'contact'" (click)="setActiveTab('contact')">
+        Contact Support
+      </li>
+      <li [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">
+        Download Forms
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Feedback Tab -->
+    <div *ngIf="activeTab === 'feedback'" class="feedback-tab">
+      <div class="feedback-form">
+        <h3>Submit Feedback</h3>
+        <form (submit)="submitFeedback()">
+          <div class="form-group">
+            <label for="feedbackType">Feedback Type</label>
+            <select id="feedbackType" [(ngModel)]="feedbackForm.type" name="feedbackType" required>
+              <option *ngFor="let category of feedbackCategories" [value]="category.value">
+                {{ category.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="feedbackSubject">Subject</label>
+            <input type="text" id="feedbackSubject" [(ngModel)]="feedbackForm.subject" name="feedbackSubject" required>
+          </div>
+
+          <div class="form-group">
+            <label for="feedbackMessage">Your Feedback</label>
+            <textarea id="feedbackMessage" [(ngModel)]="feedbackForm.message" name="feedbackMessage" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="feedbackRating">Rating (optional)</label>
+            <div class="rating">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    (click)="feedbackForm.rating = star" 
+                    [class.active]="star <= feedbackForm.rating">★</span>
+            </div>
+          </div>
+
+          <div class="form-group checkbox">
+            <input type="checkbox" id="anonymous" [(ngModel)]="feedbackForm.isAnonymous" name="anonymous">
+            <label for="anonymous">Submit anonymously</label>
+          </div>
+
+          <button type="submit">Submit Feedback</button>
+        </form>
+      </div>
+
+      <div class="feedback-history">
+        <h3>Your Feedback Submissions</h3>
+        <div *ngIf="submittedFeedback.length === 0" class="no-items">
+          <p>You haven't submitted any feedback yet.</p>
+        </div>
+        <div *ngFor="let feedback of submittedFeedback" class="feedback-item">
+          <div class="feedback-header">
+            <h4>{{ feedback.subject }}</h4>
+            <span class="type">{{ feedback.type | uppercase }}</span>
+            <span class="date">{{ feedback.date | date:'mediumDate' }}</span>
+            <span class="status" [class.submitted]="feedback.status === 'Submitted'"
+                                 [class.reviewed]="feedback.status === 'Reviewed'"
+                                 [class.resolved]="feedback.status === 'Resolved'">
+              {{ feedback.status }}
+            </span>
+          </div>
+          <div class="feedback-details">
+            <p>{{ feedback.message }}</p>
+            <div *ngIf="feedback.rating > 0" class="rating-display">
+              <span *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= feedback.rating">★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Desk Tab -->
+    <div *ngIf="activeTab === 'helpdesk'" class="helpdesk-tab">
+      <div class="ticket-form">
+        <h3>Submit a Help Request</h3>
+        <form (submit)="submitTicket()">
+          <div class="form-group">
+            <label for="ticketCategory">Category</label>
+            <select id="ticketCategory" [(ngModel)]="ticketForm.category" name="ticketCategory" required>
+              <option *ngFor="let category of ticketCategories" [value]="category.value">
+                {{ category.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ticketSubject">Subject</label>
+            <input type="text" id="ticketSubject" [(ngModel)]="ticketForm.subject" name="ticketSubject" required>
+          </div>
+
+          <div class="form-group">
+            <label for="ticketDescription">Description</label>
+            <textarea id="ticketDescription" [(ngModel)]="ticketForm.description" name="ticketDescription" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ticketUrgency">Urgency</label>
+              <select id="ticketUrgency" [(ngModel)]="ticketForm.urgency" name="ticketUrgency" required>
+                <option *ngFor="let level of urgencyLevels" [value]="level.value">
+                  {{ level.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="ticketAttachments">Attachments</label>
+              <input type="file" id="ticketAttachments" (change)="onFileSelected($event)" multiple>
+            </div>
+          </div>
+
+          <div *ngIf="ticketForm.attachments.length > 0" class="attachments-preview">
+            <h4>Attached Files:</h4>
+            <ul>
+              <li *ngFor="let file of ticketForm.attachments">{{ file.name }}</li>
+            </ul>
+          </div>
+
+          <button type="submit">Submit Ticket</button>
+        </form>
+      </div>
+
+      <div class="ticket-history">
+        <h3>Your Help Requests</h3>
+        <div *ngIf="submittedTickets.length === 0" class="no-items">
+          <p>You haven't submitted any help requests yet.</p>
+        </div>
+        <table *ngIf="submittedTickets.length > 0">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Last Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ticket of submittedTickets" [class.submitted]="ticket.status === 'Submitted'"
+                                                   [class.progress]="ticket.status === 'In Progress'"
+                                                   [class.resolved]="ticket.status === 'Resolved'">
+              <td>{{ ticket.id }}</td>
+              <td>{{ ticket.subject }}</td>
+              <td>{{ ticket.category }}</td>
+              <td>{{ ticket.date | date:'shortDate' }}</td>
+              <td>{{ ticket.status }}</td>
+              <td>{{ ticket.lastUpdate | date:'shortDate' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FAQ Tab -->
+    <div *ngIf="activeTab === 'faq'" class="faq-tab">
+      <div class="faq-search">
+        <div class="search-box">
+          <input type="text" [(ngModel)]="faqSearch" placeholder="Search FAQs...">
+          <button>Search</button>
+        </div>
+        <div class="category-filter">
+          <label for="faqCategory">Filter by category:</label>
+          <select id="faqCategory" [(ngModel)]="faqCategory">
+            <option value="all">All Categories</option>
+            <option value="login">Login Issues</option>
+            <option value="fee">Fee Payments</option>
+            <option value="attendance">Attendance</option>
+            <option value="library">Library Usage</option>
+            <option value="placement">Placement Process</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="faq-list">
+        <div *ngIf="filteredFaqs.length === 0" class="no-items">
+          <p>No FAQs match your search criteria.</p>
+        </div>
+        <div *ngFor="let faq of filteredFaqs" class="faq-item">
+          <h4>{{ faq.question }}</h4>
+          <div class="faq-answer">
+            <p>{{ faq.answer }}</p>
+          </div>
+          <div class="faq-meta">
+            <span class="category">{{ faq.category | uppercase }}</span>
+            <span class="views">{{ faq.views }} views</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Tab -->
+    <div *ngIf="activeTab === 'contact'" class="contact-tab">
+      <div class="contact-search">
+        <input type="text" [(ngModel)]="contactSearch" placeholder="Search departments or contacts...">
+      </div>
+
+      <div class="contact-list">
+        <div *ngFor="let contact of filteredContacts" class="contact-card">
+          <h3>{{ contact.department }}</h3>
+          <div class="contact-details">
+            <p><strong>Email:</strong> <a [href]="'mailto:' + contact.email">{{ contact.email }}</a></p>
+            <p><strong>Phone:</strong> {{ contact.phone }}</p>
+            <p><strong>Office Hours:</strong> {{ contact.hours }}</p>
+            <p><strong>Location:</strong> {{ contact.location }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Tab -->
+    <div *ngIf="activeTab === 'documents'" class="documents-tab">
+      <div class="document-list">
+        <div *ngFor="let doc of filteredDocuments" class="document-card">
+          <div class="document-info">
+            <h4>{{ doc.name }}</h4>
+            <p>{{ doc.description }}</p>
+          </div>
+          <button (click)="downloadDocument(doc.downloadUrl)">Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

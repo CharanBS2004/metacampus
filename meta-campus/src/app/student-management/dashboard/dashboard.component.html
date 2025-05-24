@@ -1,0 +1,192 @@
+<div class="dashboard-container">
+  <section class="welcome-section">
+    <h2>Welcome, {{studentName}} ({{rollNumber}})</h2>
+    <p>{{currentProgram}} | {{currentSemester}}</p>
+    <div class="status-indicators">
+      <span class="status-badge" [ngClass]="{'paid': feeStatus === 'Paid', 'due': feeStatus === 'Due'}">
+        Fees: {{feeStatus}}
+      </span>
+      <span class="status-badge" [ngClass]="{'active': scholarshipStatus === 'Active', 'inactive': scholarshipStatus === 'Inactive'}">
+        Scholarship: {{scholarshipStatus}}
+      </span>
+    </div>
+  </section>
+
+  <div class="dashboard-grid">
+    <!-- Quick Summary Cards -->
+    <section class="summary-cards">
+      <h3 class="section-title">Quick Summary</h3>
+      <div class="cards-container">
+        <div class="summary-card">
+          <div class="card-header">
+            <i class="fas fa-calendar-alt"></i>
+            <h4>Today's Timetable</h4>
+          </div>
+          <div class="card-content">
+            <ul class="timetable-list">
+              <li *ngFor="let class of todaysClasses">
+                <span class="time">{{class.time}}</span>
+                <span class="subject">{{class.subject}}</span>
+                <span class="room">{{class.room}}</span>
+              </li>
+              <li *ngIf="todaysClasses.length === 0">No classes scheduled</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-header">
+            <i class="fas fa-tasks"></i>
+            <h4>Pending Assignments</h4>
+          </div>
+          <div class="card-content">
+            <p class="count">{{pendingAssignmentsCount}} due soon</p>
+            <ul class="assignments-list">
+              <li *ngFor="let assignment of pendingAssignments">
+                <a [routerLink]="['/assignments']">{{assignment.title}} - Due: {{assignment.dueDate}}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-header">
+            <i class="fas fa-calendar-check"></i>
+            <h4>Upcoming Exams</h4>
+          </div>
+          <div class="card-content">
+            <div *ngIf="nextExam">
+              <p><strong>{{nextExam.subject}}</strong></p>
+              <p>Date: {{nextExam.date}}</p>
+              <p>Time: {{nextExam.time}}</p>
+            </div>
+            <p *ngIf="!nextExam">No upcoming exams</p>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-header">
+            <i class="fas fa-user-check"></i>
+            <h4>Attendance Summary</h4>
+          </div>
+          <div class="card-content">
+            <div class="attendance-display" [ngClass]="attendanceStatus">
+              <span class="percentage">{{attendancePercentage}}%</span>
+            </div>
+            <p *ngIf="attendancePercentage < 75" class="warning">Warning: Below minimum requirement</p>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-header">
+            <i class="fas fa-book"></i>
+            <h4>Library Status</h4>
+          </div>
+          <div class="card-content">
+            <p>Books issued: {{issuedBooksCount}}</p>
+            <div *ngIf="dueSoonBooks.length > 0">
+              <p>Due soon:</p>
+              <ul>
+                <li *ngFor="let book of dueSoonBooks">
+                  {{book.title}} - Return by: {{book.dueDate}}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications and Quick Actions -->
+    <div class="right-column">
+      <section class="notifications-section">
+        <h3 class="section-title">Notifications</h3>
+        <div class="notifications-container">
+          <div class="notification" *ngFor="let notification of notifications">
+            <div class="notification-icon" [ngClass]="notification.type">
+              <i [class]="notification.icon"></i>
+            </div>
+            <div class="notification-content">
+              <h5>{{notification.title}}</h5>
+              <p>{{notification.message}}</p>
+              <span class="notification-time">{{notification.time}}</span>
+              <a *ngIf="notification.link" [routerLink]="notification.link">View Details</a>
+            </div>
+          </div>
+          <div *ngIf="notifications.length === 0" class="empty-notifications">
+            No new notifications
+          </div>
+        </div>
+      </section>
+
+      <section class="quick-actions-section">
+        <h3 class="section-title">Quick Actions</h3>
+        <div class="actions-grid">
+          <button class="action-button" *ngFor="let action of quickActions" [routerLink]="action.link">
+            <i [class]="action.icon"></i>
+            <span>{{action.title}}</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Optional Sections -->
+  <section *ngIf="recentGrades.length > 0" class="recent-grades">
+    <h3 class="section-title">Recent Grades</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Exam</th>
+          <th>Grade</th>
+          <th>Marks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let grade of recentGrades">
+          <td>{{grade.subject}}</td>
+          <td>{{grade.exam}}</td>
+          <td>{{grade.grade}}</td>
+          <td>{{grade.marks}}/{{grade.totalMarks}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section *ngIf="placementActivities.length > 0 && isFinalYear" class="placement-activities">
+    <h3 class="section-title">Placement Activities</h3>
+    <div class="activities-list">
+      <div class="activity" *ngFor="let activity of placementActivities">
+        <h5>{{activity.company}} - {{activity.position}}</h5>
+        <p>{{activity.description}}</p>
+        <div class="activity-meta">
+          <span>Deadline: {{activity.deadline}}</span>
+          <span>Eligibility: {{activity.eligibility}}</span>
+        </div>
+        <button *ngIf="activity.canApply" class="apply-button">Apply Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="clubEvents.length > 0" class="club-events">
+    <h3 class="section-title">Club Events & Activities</h3>
+    <div class="events-list">
+      <div class="event" *ngFor="let event of clubEvents">
+        <div class="event-date">
+          <span class="day">{{event.date | date:'d'}}</span>
+          <span class="month">{{event.date | date:'MMM'}}</span>
+        </div>
+        <div class="event-details">
+          <h5>{{event.title}}</h5>
+          <p>{{event.description}}</p>
+          <div class="event-meta">
+            <span><i class="fas fa-clock"></i> {{event.time}}</span>
+            <span><i class="fas fa-map-marker-alt"></i> {{event.location}}</span>
+          </div>
+          <button *ngIf="event.canRegister" class="register-button">Register</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

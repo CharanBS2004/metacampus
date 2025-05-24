@@ -1,0 +1,334 @@
+/* Base Styles */
+.academics-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+}
+
+.student-header {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  
+  h2 {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+}
+
+.student-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  
+  .info-item {
+    display: flex;
+    gap: 5px;
+    
+    .label {
+      font-weight: bold;
+    }
+    
+    .value {
+      color: #2c3e50;
+    }
+  }
+}
+
+/* Navigation Tabs */
+.academics-nav {
+  background-color: #2c3e50;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    overflow-x: auto;
+    
+    li {
+      padding: 15px 20px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      
+      &:hover {
+        background-color: #34495e;
+      }
+      
+      &.active {
+        background-color: #3498db;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+/* Common Tab Styles */
+.tab-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+  }
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  tr:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+/* Status Indicators */
+.status {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
+  
+  &.pending {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  &.submitted {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  &.late {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  &.graded {
+    background-color: #3498db;
+    color: white;
+  }
+}
+
+/* Attendance Warning */
+.low-attendance {
+  background-color: #ffdddd;
+  
+  &:hover {
+    background-color: #ffcccc;
+  }
+}
+
+.warning {
+  background-color: #fff3cd;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 20px;
+  color: #856404;
+}
+
+/* Buttons and Actions */
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: #2980b9;
+  }
+}
+
+.actions {
+  margin-bottom: 20px;
+}
+
+/* Syllabus Materials */
+.syllabus-item {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  
+  h4 {
+    color: #2c3e50;
+  }
+}
+
+.materials-section {
+  margin-top: 15px;
+  
+  h5 {
+    margin-bottom: 5px;
+    color: #3498db;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+    
+    li {
+      padding: 5px 0;
+      
+      a {
+        color: #3498db;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+/* Assignment Styles */
+.assignment-item {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  
+  .assignment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .assignment-details {
+    p {
+      margin: 5px 0;
+    }
+  }
+  
+  .feedback {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
+  }
+}
+
+.upload-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #3498db;
+}
+
+/* Results Styles */
+.cgpa-display {
+  background-color: #e8f4fc;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  
+  h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5em;
+  }
+}
+
+.semester-result {
+  margin-bottom: 30px;
+  
+  h4 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+}
+
+.gpa {
+  text-align: right;
+  font-size: 1.1em;
+  margin-top: 10px;
+}
+
+/* Calendar Events */
+.calendar-event {
+  display: flex;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  .event-date {
+    background-color: #3498db;
+    color: white;
+    padding: 15px;
+    min-width: 120px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .event-details {
+    padding: 15px;
+    flex-grow: 1;
+    
+    h4 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .academics-nav ul {
+    flex-direction: column;
+    
+    li {
+      padding: 10px 15px;
+    }
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .calendar-event {
+    flex-direction: column;
+    
+    .event-date {
+      min-width: auto;
+    }
+  }
+}
